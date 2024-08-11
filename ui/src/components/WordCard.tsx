@@ -3,18 +3,26 @@ import Word, {IWord} from "./Word.tsx";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import {useState} from "react";
-import {Grid} from "@mui/material";
+import {CardActions, Grid, IconButton} from "@mui/material";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export interface WordCardInfo {
+    translationId: number,
     front: IWord,
     back: IWord,
     imageUrl?: string
 }
 
-function WordCard({wordCardInfo}: { wordCardInfo: WordCardInfo }) {
-    const [isFront, setIsFront] = useState(true)
-
+function WordCard({wordCardInfo, isFront, setIsFront, forward, backward, isLast, isFirst}: {
+    wordCardInfo: WordCardInfo,
+    isFront: boolean,
+    setIsFront: (newValue: boolean) => void,
+    forward: () => void,
+    backward: () => void,
+    isLast: boolean,
+    isFirst: boolean
+}) {
     return (
         <>
             <Grid
@@ -25,7 +33,7 @@ function WordCard({wordCardInfo}: { wordCardInfo: WordCardInfo }) {
                 justifyContent="center"
                 style={{minHeight: '100vh'}}
             >
-                <Grid item xs={10} sm={8} md={6} lg={4}>
+                <Grid item xs={20} sm={8} md={6} lg={4}>
                     <Card sx={{
                         width: '100%', // Take up the full width of the Grid item
                         minWidth: '350px', // Ensures a minimum width
@@ -38,10 +46,30 @@ function WordCard({wordCardInfo}: { wordCardInfo: WordCardInfo }) {
                         <CardContent>
                             <Word word={isFront ? wordCardInfo.front : wordCardInfo.back}/>
                         </CardContent>
+                        <CardActions sx={{
+                            justifyContent: `${isFirst ? 'flex-end' : isLast ? 'flex-start' : 'space-between'}`,
+                        }}>
+                            {
+                                !isFirst && <IconButton onClick={(e) => {
+                                    e.stopPropagation()
+                                    backward()
+                                }}>
+                                    <ArrowBackIcon sx={{backgroundColor: "white", fontSize: "45px"}}/>
+                                </IconButton>
+                            }
+                            {
+                                !isLast && <IconButton onClick={(e) => {
+                                    e.stopPropagation()
+                                    forward()
+                                }}>
+                                    <ArrowForwardIcon sx={{backgroundColor: "white", fontSize: "45px"}}/>
+                                </IconButton>
+                            }
+                        </CardActions>
                         {
                             isFront && wordCardInfo.imageUrl && <CardMedia
                                 component={"img"}
-                                sx={{width: '100%', p: '2 2 2 2', maxHeight: 700, minHeight: 200}}
+                                sx={{width: '100%', maxHeight: 500, minHeight: 200, objectFit: "contain"}}
                                 image={wordCardInfo.imageUrl}
                             />
                         }

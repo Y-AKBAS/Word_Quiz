@@ -6,6 +6,9 @@ plugins {
     id("org.graalvm.buildtools.native") version "0.10.2"
 }
 
+group = "com.htwk"
+version = "0.0.1-SNAPSHOT"
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -44,19 +47,33 @@ kotlin {
 }
 
 // Define a task to build the frontend
-tasks.register<Exec>("buildFrontend") {
-    workingDir = file("../ui")
-    commandLine = listOf("C:/Program Files/nodejs/npm.cmd", "run", "build")
-}
+val staticFolderPath = "src/main/resources/static"
 
-tasks.register<Copy>("copyFrontendBuild") {
-    dependsOn("::buildFrontend")
+val frontendBuildTask = tasks.register<Exec>("buildFrontend") {
+    workingDir = file("../ui")
+    commandLine = listOf("npm.cmd", "run", "build")
+}.get()
+
+val cleanStaticFolder = tasks.register<Delete>("cleanStaticFolder") {
+    val staticFolder = file(staticFolderPath)
+    val files = staticFolder.listFiles()
+    if (files != null) {
+        delete(staticFolder.listFiles())
+    }
+
+    doLast {
+        if (!staticFolder.exists()) require(staticFolder.mkdir()) { "Failed to create $staticFolder folder!" }
+    }
+}.get()
+
+val copyFrontendBuildTask = tasks.register<Copy>("copyFrontendBuild") {
+    dependsOn(frontendBuildTask, cleanStaticFolder)
     from("../ui/dist")
-    into("src/main/resources/static")
-}
+    into(staticFolderPath)
+}.get()
 
 tasks.getByName("processResources") {
-    dependsOn("copyFrontendBuild")
+    dependsOn(copyFrontendBuildTask)
 }
 
 tasks.withType<Test> {

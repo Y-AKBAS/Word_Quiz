@@ -33,7 +33,7 @@ function WordCard({wordCardInfo, isFront, setIsFront, forward, backward, isLast,
                 justifyContent="center"
                 style={{minHeight: '100vh'}}
             >
-                <Grid item xs={20} sm={8} md={6} lg={4}>
+                <Grid item xs={10} sm={8} md={6} lg={4}>
                     <Card sx={{
                         width: '100%', // Take up the full width of the Grid item
                         minWidth: '350px', // Ensures a minimum width
